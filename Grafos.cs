@@ -224,6 +224,52 @@ namespace TrabalhoM1.Grafos
         }
 
         /// <summary>
+        /// Busca em Profundidade (DFS) com destino. É a mesma recursão da
+        /// buscaProfundidade acima, mas registra o antecessor de cada vértice e para
+        /// assim que alcança o destino, devolvendo o caminho origem -> destino.
+        /// Arestas de peso 0 (ou negativo) são ignoradas, como exige o Ford-Fulkerson.
+        /// Retorna lista vazia quando não há caminho.
+        /// </summary>
+        public List<int> buscaProfundidade(int origem, int destino)
+        {
+            List<int> caminho = new List<int>();
+            if (!IndicesValidos(origem, destino))
+                return caminho;
+
+            bool[] visitado = new bool[QuantidadeVertices];
+            int[] anterior = new int[QuantidadeVertices];
+            for (int i = 0; i < anterior.Length; i++)
+                anterior[i] = -1;
+
+            if (!DFSRecursiva(origem, destino, visitado, anterior))
+                return caminho;
+
+            for (int atual = destino; atual != -1; atual = anterior[atual])
+                caminho.Insert(0, atual);
+
+            return caminho;
+        }
+
+        private bool DFSRecursiva(int vertice, int destino, bool[] visitado, int[] anterior)
+        {
+            visitado[vertice] = true;
+            if (vertice == destino)
+                return true;
+
+            foreach (int vizinho in retornarVizinhos(vertice))
+            {
+                if (!visitado[vizinho] && pesoAresta(vertice, vizinho) > 0)
+                {
+                    anterior[vizinho] = vertice;
+                    if (DFSRecursiva(vizinho, destino, visitado, anterior))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Algoritmo de Dijkstra - retorna menor distância e caminho para cada vértice
         /// Retorna um dicionário onde a chave é o vértice destino e o valor é uma tupla (distância, caminho)
         /// </summary>
